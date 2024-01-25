@@ -1,27 +1,27 @@
 # PCNNPRS
-PCNNPRS implements a partially connected neural network based on each chromosome to perform PRS computation, where the input is a multi-PRS score obtained through different C+T parameters. 
-Compared to traditional methods, PCNN shows that neural network could be flexible enough to predict the nonlinear relationships between PRS scores and continuous phenotype, emphasizing practicality of our method for trait predictions.
+PCNNPRS is a novel method to perform PRS calculations with a partially connected neural network, where the input of PCNN is a multi-PRS calculated on each chromosome with different clumping and thresholding (C+T) parameters.
+Compared to traditional methods, PCNN shows that neural network could be flexible enough to predict the nonlinear relationships between PRS scores and continuous phenotype, emphasizing the practicality of our method for continuous trait predictions.
 
 ## Installation:
-Download a local copy of PCNNPRS and unzip it to a target directory
+Download a local copy of PCNNPRS and unzip it to a target directory.
 ## Dependencies:
-Python: Pytorch, Scikit-learn, Numpy, Pandas. 
+Python: Pytorch-cpu, Scikit-learn, Numpy, Pandas. 
 
 R: bigsnpr, dplyr, data.table, Matrix, doParallel, recticulate, and all of their dependencies.
 
 ## An example to train PCNN model and make prediction on target data.
 
-### &#9312; Set up Python and R environment
-We recommend you to use conda to manage dependencies in different environments. If Conda hasn't been installed on your system yet, please visit https://www.anaconda.com/download for detailed installation information. Our analyses are currently conducted on CPU, and we are considering using GPU devices to train PyTorch model in the future. Refer to https://pytorch.org/get-started/locally/ for instructions on installing PyTorch, with steps varying based on your operating system.
+### Set up Python and R environment
+We recommend you use conda to manage dependencies in different environments. If Conda hasn't been installed on your system yet, please visit https://www.anaconda.com/download for detailed installation information. Our analyses are currently conducted on CPU, and we are considering using GPU devices to train PyTorch model in the future. Refer to https://pytorch.org/get-started/locally/ for instructions on installing PyTorch, with steps varying based on your operating system.
 
-First, create a conda environment and install the Python packages. (Please just skip this step if you've already done this before.)
+First, create a conda environment and install the Python packages. (Please skip this step if you've already done this before.)
 ```
 # The example is performed under Windows 10.
 conda create -n yourenv python=3.9
 conda install pytorch torchvision torchaudio cpuonly -c pytorch
 conda install scikit-learn pandas numpy
 ```
-Then activate your conda environment and record the path of Python interpreter under **yourenv**.
+Then activate your conda environment and record the Python interpreter path under **yourenv**.
 
 ```
 conda activate yourenv
@@ -32,13 +32,12 @@ D:/path/to/anaconda3/envs/yourenv/python.exe
 # or /Users/anaconda3/envs/yourenv/bin/python
 ```
 
-Finally, create a new Rscript on your local device and set working directory to **PCNNPRS**. Don't forget to source the Rscript ```train_with_pc.r``` after installing R packages.
+Finally, create a new Rscript on your local device and set the working directory to **PCNNPRS**. Don't forget to source the Rscript ```train_with_pc.r``` after installing the R packages.
 ```R
 setwd('path/to/PCNNPRS')
 install.packages(c('bigsnpr', 'dplyr', 'doParallel', 'reticulate', 'data.table'))
 library(c('bigsnpr', 'dplyr', 'doParallel', 'reticulate', 'data.table'))
 source('Train/train_with_pc.r')
-source('Predict/predict_with_pc.r')
 ```
 
 ### Load training dataset and summary statistics.
@@ -56,7 +55,8 @@ sumstats <- fread('path/to/sumstats.txt',header = TRUE)
 names(sumstats) <- c('chr', 'rsid', 'pos', 'a1', 'a0', 'beta', 'p')
 y_train <- fread('path/to/y_train.txt', header=FALSE)
 ```
-* ```read_file()``` accepts two types of input: VCF file(.vcf) and PLINK files (.bed, .bim, .fam) without extension.```bfile_out_dir ```refers to the path where to store PLINK files and is only enabled when the input is in VCF format. Moreover, if you don't specify ```bfile_out_dir```, PLINK files will be generated under the same directory as your input file. 
+* ```read_file()``` accepts two types of input: VCF file(.vcf) and PLINK files (.bed, .bim, .fam) without extension.
+* ```bfile_out_dir ``` refers to the path where to store PLINK files and is only enabled when the input is in VCF format. Moreover, if you don't specify ```bfile_out_dir```, PLINK files will be generated under the same directory as your input file. 
 * ```G``` refers to genotyped variants coded in '0/1/2'.
 * ```map``` refers to variants information.
   
@@ -90,13 +90,13 @@ train_with_pcnn(
   y_train,
   map,
   sumstats,
-  material_out_dir = "path/to/material_out_dir/",
+  material_out_dir = "path/to/store/material",
   python_dir = "path/to/anaconda3/envs/yourenv/python",
   max_evals = 5,
   Ncores = ncores
 )
 ```
-* ```material_out_dir``` refers to the directory to store the temp file generated when training.
+* ```material_out_dir``` is a directory used to store temporary files during training.
 * ```python_dir``` refers to the python interpreter under **yourenv**.
 * ```max_evals``` is the total number of rounds in a random search for hyperparameters tuning.
 * ```Ncores``` represents the number of CPU cores used for parallel processing during training.
