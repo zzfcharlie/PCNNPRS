@@ -177,6 +177,7 @@ MAX_EVALS = int(max_evals)
 def Random_Search(param_grid,MAX_EVALS):
     x_train,x_val,y_train,y_val,scalerx,scalery = get_data(multi_train,y_pheno)
     torch.save(scalerx,f'{out_dir}/scalerx.pkl')
+    torch.save(scalery,f'{out_dir}/scalery.pkl')
     start_time_all = time.time()
     best_score = 0
     best_hyperparams = {}
