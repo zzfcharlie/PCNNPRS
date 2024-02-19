@@ -63,7 +63,7 @@ def predict(material_dir, result_dir):
     x_test = np.array(pd.read_csv(f'{material_dir}/prs22.csv', header=None))
     x_test_tensor = torch.tensor(x_test, dtype=torch.float32)
     with torch.no_grad():
-        pred = scalery.transform(reduce_model(x_test_tensor))
+        pred = scalery.inverse_transform(reduce_model(x_test_tensor))
     np.savetxt(f'{result_dir}/pred.txt', pred)
 
 
