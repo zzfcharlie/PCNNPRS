@@ -1,6 +1,6 @@
 # PCNNPRS
 PCNNPRS is a novel method to perform PRS calculations with a partially connected neural network, where the input of PCNN is a multi-PRS calculated on each chromosome with different clumping and thresholding (C+T) parameters.
-Compared to traditional methods, PCNN shows that neural network could be flexible enough to predict the nonlinear relationships between PRS scores and continuous phenotype, emphasizing the practicality of our method for continuous trait predictions.
+Compared to traditional methods, PCNN shows that neural network could be flexible enough to predict the nonlinear relationships between C+T scores and continuous phenotypes, emphasizing the practicality of our method for continuous trait predictions.
 
 ## Installation:
 Download a local copy of PCNNPRS and unzip it to a target directory.
