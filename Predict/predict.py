@@ -52,6 +52,7 @@ class ReduceNet(nn.Module):
 
 def predict(material_dir, result_dir):
     reduce_model_path = f'{material_dir}/reduce_model.pkl'
+    scalery = torch.load(f'{material_dir}/scalery.pkl')
     hyperparameters = torch.load(
         f'{material_dir}/best_hyperparams.pkl')
     learning_rate = hyperparameters['learning_rate']
@@ -62,7 +63,7 @@ def predict(material_dir, result_dir):
     x_test = np.array(pd.read_csv(f'{material_dir}/prs22.csv', header=None))
     x_test_tensor = torch.tensor(x_test, dtype=torch.float32)
     with torch.no_grad():
-        pred = reduce_model(x_test_tensor)
+        pred = scalery.transform(reduce_model(x_test_tensor))
     np.savetxt(f'{result_dir}/pred.txt', pred)
 
 
