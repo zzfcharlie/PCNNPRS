@@ -3,8 +3,13 @@ PCNNPRS is a novel method to perform PRS calculations with a partially connected
 Compared to traditional methods, PCNN shows that neural network could be flexible enough to predict the nonlinear relationships between C+T scores and continuous phenotypes, emphasizing the practicality of our method for continuous trait predictions.
 
 ## Installation:
-Download a local copy of PCNNPRS and unzip it to a target directory.
-## Dependencies:
+### From source
+Download a local copy of PCNNPRS to a target directory:
+```
+cd path/to/your/dir/
+git clone https://github.com/zzfcharlie/PCNNPRS.git
+```
+### Dependencies:
 Python: Pytorch-cpu, Scikit-learn, Numpy, Pandas. 
 
 R: bigsnpr, dplyr, data.table, Matrix, doParallel, recticulate, and all of their dependencies.
