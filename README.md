@@ -19,17 +19,17 @@ R: bigsnpr, dplyr, data.table, Matrix, doParallel, recticulate, and all of their
 ### Set up Python and R environment
 We recommend you use conda to manage dependencies in different environments. If Conda hasn't been installed on your system yet, please visit https://www.anaconda.com/download for detailed installation information. Our analyses are currently conducted on CPU, and we are considering using GPU devices to train PyTorch model in the future. Refer to https://pytorch.org/get-started/locally/ for instructions on installing PyTorch, with steps varying based on your operating system.
 
-First, create a conda environment and install the Python packages. (Please skip this step if you've already done this before.)
+First, create and activate a conda environment and install the Python packages. (Please skip this step if you've already done this before.)
 ```
 # The example is performed under Windows 10.
 conda create -n yourenv python=3.9
+conda activate yourenv
 conda install pytorch torchvision torchaudio cpuonly -c pytorch
 conda install scikit-learn pandas numpy
 ```
-Then activate your conda environment and record the Python interpreter path under **yourenv**.
+Then record the Python interpreter path under **yourenv**.
 
 ```
-conda activate yourenv
 # Use "which python" on Mac or Linux.
 where python
 # Record the path below.
