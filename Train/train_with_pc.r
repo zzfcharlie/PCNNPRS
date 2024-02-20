@@ -77,7 +77,7 @@ read_file <- function(input_file_dir, plink_dir = NULL, bfile_out_dir = NULL) {
 
 
 
-train_with_pcnn <- function(G, y_train, map, sumstats, material_out_dir, python_dir, max_evals=10, Ncores){
+train_with_pcnn <- function(G, y_train, map, sumstats, material_out_dir, python_dir, max_evals=10, Ncores, seed){
   snp_match_result <- snp_match(sumstats, map)
   beta <- rep(NA,ncol(G))
   beta[snp_match_result$`_NUM_ID_`] <- snp_match_result$beta
@@ -108,6 +108,7 @@ train_with_pcnn <- function(G, y_train, map, sumstats, material_out_dir, python_
   }
   reticulate::use_python(python_dir)
   reticulate::py_config()
+  py$seed <- seed
   py$multi_train <- multi_PRS[,]
   py$y_pheno <- y_train
   py$out_dir <- material_out_dir
