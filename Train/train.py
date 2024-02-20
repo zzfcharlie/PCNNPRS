@@ -169,6 +169,9 @@ param_grid = {
 
 
 
+torch.manual_seed(int(seed))
+np.random.seed(int(seed))
+random.seed(int(seed))
 torch.set_num_threads(int(Ncores))
 MAX_EVALS = int(max_evals)
 
