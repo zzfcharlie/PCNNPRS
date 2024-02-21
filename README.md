@@ -100,7 +100,7 @@ train_with_pcnn(
   sumstats,
   material_out_dir = "path/to/store/material",
   python_dir = "path/to/anaconda3/envs/yourenv/python",
-  max_evals = 5,
+  max_evals = 10,
   seed = seed,
   Ncores = ncores
 )
