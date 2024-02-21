@@ -41,7 +41,12 @@ Finally, create a new Rscript on your local device and set the working directory
 ```R
 setwd('path/to/PCNNPRS')
 install.packages(c('bigsnpr', 'dplyr', 'doParallel', 'reticulate', 'data.table'))
-library(c('bigsnpr', 'dplyr', 'doParallel', 'reticulate', 'data.table'))
+#library the packages above
+library('bigsnpr')
+library('dplyr')
+...
+library('doParallel')
+library('reticulate')
 source('Train/train_with_pc.r')
 ```
 
@@ -84,8 +89,6 @@ y_train <- fread('path/to/y_train.txt', header=FALSE)
 | 22  | rs9616818    | 51135545  | T  | C  | -4.814950e-04     | 9.620711e-01     |
 | 22  | rs9616941    | 51136646  | T  | C  | -4.2036828e-03    | 7.383258e-01     |
 
-
-
 * Our model doesn't handle missing values. You can use ```snp_fastImpute()``` or ```snp_fastImputeSimple()``` in ```bigsnpr``` to impute missing values of genotyped variants before training.
 
 ### Compute multi-PRS and train with PCNN.
@@ -98,12 +101,14 @@ train_with_pcnn(
   material_out_dir = "path/to/store/material",
   python_dir = "path/to/anaconda3/envs/yourenv/python",
   max_evals = 5,
+  seed = seed,
   Ncores = ncores
 )
 ```
 * ```material_out_dir``` is a directory used to store temporary files during training.
 * ```python_dir``` refers to the python interpreter under **yourenv**.
 * ```max_evals``` is the total number of rounds in a random search for hyperparameters tuning.
+* ```seed``` refers to a random seed used to initialize the random number generator.
 * ```Ncores``` represents the number of CPU cores used for parallel processing during training.
 
 
