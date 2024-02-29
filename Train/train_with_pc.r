@@ -77,7 +77,16 @@ read_file <- function(input_file_dir, plink_dir = NULL, bfile_out_dir = NULL) {
 
 
 
-train_with_pcnn <- function(G, y_train, map, sumstats, material_out_dir, python_dir, max_evals=10, Ncores, seed){
+
+
+train_with_pcnn <- function(G, y_train, map, sumstats, material_out_dir=NULL, env_name, max_evals=10, Ncores, seed){
+  if(is.null(material_out_dir)){
+    material_out_dir <- getwd()
+  }else{
+    if(!dir.exists(material_out_dir)){
+      stop(paste("path:'", material_out_dir, "' doesn't exist.",sep = ''))
+    }
+  }
   snp_match_result <- snp_match(sumstats, map)
   beta <- rep(NA,ncol(G))
   beta[snp_match_result$`_NUM_ID_`] <- snp_match_result$beta
@@ -106,7 +115,7 @@ train_with_pcnn <- function(G, y_train, map, sumstats, material_out_dir, python_
                               n_thr_lpS = 50, ncores = Ncores)
     message('Multi-PRS calculations are complete.\n')
   }
-  reticulate::use_python(python_dir)
+  reticulate::use_condaenv(env_name)
   reticulate::py_config()
   py$seed <- seed
   py$multi_train <- multi_PRS[,]
