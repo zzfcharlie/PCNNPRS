@@ -4,9 +4,8 @@ Compared to traditional methods, PCNN shows that neural network could be flexibl
 
 ## Installation:
 ### From source
-Download a local copy of PCNNPRS to a target directory:
+Download a local copy of PCNNPRS:
 ```
-cd path/to/your/dir/
 git clone https://github.com/zzfcharlie/PCNNPRS.git
 ```
 ### Dependencies:
@@ -16,7 +15,7 @@ R: bigsnpr, dplyr, data.table, Matrix, doParallel, recticulate, and all of their
 
 ## An example to train PCNN model and make prediction on target data.
 
-### Set up Python and R environment
+### Set up Python environment and install R packages.
 We recommend you use conda to manage dependencies in different environments. If Conda hasn't been installed on your system yet, please visit https://www.anaconda.com/download for detailed installation information. Our analyses are currently conducted on CPU, and we are considering using GPU devices to train PyTorch model in the future. Refer to https://pytorch.org/get-started/locally/ for instructions on installing PyTorch, with steps varying based on your operating system.
 
 First, create and activate a conda environment and install the Python packages. (Please skip this step if you've already done this before.)
@@ -27,28 +26,38 @@ conda activate yourenv
 conda install pytorch torchvision torchaudio cpuonly -c pytorch
 conda install scikit-learn pandas numpy
 ```
-Then record the Python interpreter path under **yourenv**.
+Please record your conda environment name. We use ```yourenv``` in our example.
 
-```
-# Use "which python" on Mac or Linux.
-where python
-# Record the path below.
-D:/path/to/anaconda3/envs/yourenv/python.exe
-# or /Users/anaconda3/envs/yourenv/bin/python
-```
-
-Finally, create a new Rscript on your local device and set the working directory to **PCNNPRS**. Don't forget to source the Rscript ```train_with_pc.r``` after installing the R packages.
+Then, install R packages as follows:
 ```R
-setwd('path/to/PCNNPRS')
-install.packages(c('bigsnpr', 'dplyr', 'doParallel', 'reticulate', 'data.table'))
-#library the packages above
-library('bigsnpr')
-library('dplyr')
-...
-library('doParallel')
-library('reticulate')
-source('Train/train_with_pc.r')
+install.packages('bigsnpr')
+install.packages('dplyr')
+install.packages('doParallel')
+install.packages('recticulate')
+install.packages('data.table')
 ```
+
+### Run 'Rscript example.R'
+```
+Rscript example.R
+```
+
+### The prediction result will be stored in 'result/pred.txt'.
+| ID                                | pred                  |
+|-----------------------------------|-----------------------|
+| 0002fe444c0b23f3adec06e6b00bc20c | -7.90064036846161e-01 |
+| 000de66839a885808b03f5f8f426211b |  4.19244110584259e-01 |
+| 001f47b7adc95858bc8caba825f370d4 | -1.00259378552437e-01 |
+| 001f676054f6155a47820c012630d891 |  6.68807446956635e-01 |
+| ...                               | ...                   |
+| 003abe243f194dc67d0173a920819a7e | -3.22202265262604e-01 |
+| 008f2ab0ab0c7ca06f0e821b616ed170 | -4.02684330940247e-01 |
+| 00c9a5fadab0b5ac73791decb7b6c9e0 | -5.51103949546814e-01 |
+| 00f0e515f89ff6249b822ccf28375a80 |  3.70040535926819e-03 |
+
+
+
+## Instruction for training and prediction. 
 
 ### Load training dataset and summary statistics.
 ```R
@@ -66,7 +75,7 @@ names(sumstats) <- c('chr', 'rsid', 'pos', 'a1', 'a0', 'beta', 'p')
 y_train <- fread('path/to/y_train.txt', header=FALSE)
 ```
 * ```read_file()``` accepts two types of input: VCF file(.vcf) and PLINK files (.bed, .bim, .fam) without extension.
-* ```bfile_out_dir ``` refers to the path where to store PLINK files and is only enabled when the input is in VCF format. Moreover, if you don't specify ```bfile_out_dir```, PLINK files will be generated under the same directory as your input file. 
+* ```bfile_out_dir``` refers to the path where to store PLINK files and is only enabled when the input is in VCF format. Moreover, if you don't specify ```bfile_out_dir```, PLINK files will be generated under the same directory as your input file. 
 * ```G``` refers to genotyped variants coded in '0/1/2'.
 * ```map``` refers to variants information.
   
@@ -78,7 +87,7 @@ y_train <- fread('path/to/y_train.txt', header=FALSE)
 | 22  | rs5771014   | 51216731 | C  | T  |
 | 22  | rs28729663  | 51219006 | A  | G  |
 | 22  | rs9616978   | 51220319 | G  | C  |
-* ```sumstats``` refer to summary statistcs.
+* *sumstats* refer to summary statistcs.
 
 | chr | rsid        | pos       | a1 | a0 | beta              | p                |
 | --- | ----------- | --------- | -- | -- | ----------------- | ---------------- |
@@ -94,22 +103,23 @@ y_train <- fread('path/to/y_train.txt', header=FALSE)
 ### Compute multi-PRS and train with PCNN.
 ```R
 train_with_pcnn(
-  G,
-  y_train,
-  map,
-  sumstats,
-  material_out_dir = "path/to/store/material",
-  python_dir = "path/to/anaconda3/envs/yourenv/python",
-  max_evals = 10,
-  seed = seed,
-  Ncores = ncores
-)
+    G,
+    y_train,
+    map,
+    sumstats,
+    env_name = "yourenv",
+    material_out_dir = "material_out/",
+    max_evals = 20,
+    Ncores = nb_cores(),
+    seed = 32)
 ```
-* ```material_out_dir``` is a directory used to store temporary files during training.
-* ```python_dir``` refers to the python interpreter under **yourenv**.
+
+* ```env_name``` refers to the name of conda environment we've created before.
+* ```material_out_dir``` is a directory used to store temporary files during training. If you don't specify this directory, temporary files will be generated under the default path(the directory of currently R workspace).
 * ```max_evals``` is the total number of rounds in a random search for hyperparameters tuning.
-* ```seed``` refers to a random seed used to initialize the random number generator.
 * ```Ncores``` represents the number of CPU cores used for parallel processing during training.
+* ```seed``` refers to a random seed used to initialize the random number generator.
+
 
 
 ### Calculate reverse weight for variants and obtain ```deep_map.txt```.
@@ -123,7 +133,7 @@ train_with_pcnn(
 | 22  | rs9616818    | 51135545 | T  | C  | -6.468541e-05   |
 | 22  | rs9616941    | 51136646 | T  | C  | -9.271383e-04   |
 
-### Prediction.
+### Load test dataset.
 
 ```R
 source('Predict/Predict_with_pc.r')
@@ -137,43 +147,20 @@ map.test <- obj.bigSNP.test$map[-3]
 names(map.test) <- c('chr', 'rsid', 'pos', 'a1', 'a0')
 ```
 
-### Run ```predict_function()```.
+### Make prediction.
 ```R
 predict_result <- predict_function(
-  G.test,
-  map.test,
-  material_out_dir = "path/to/material_out_dir/",
-  ID_list_dir = "path/to/ID_list.txt",
-  python_dir = "path/to/anaconda3/envs/yourenv/python",
-  result_dir = "path/to/result/",
-  Ncores = ncores
-)
+                           G.test,
+                           map.test,
+                           env_name = "yourenv",
+                           material_save_dir = 'material_out/',
+                           ID_list_dir = 'data/ID_list.txt',
+                           result_dir = 'result/',
+                           Ncores = nb_cores())
 
 ```
-* ```ID_list_dir``` refers to the path of a text file, including 'sample.ID', which should contain a header with 'ID'.
+* ```material_save_dir``` : the same directory as ```material_out_dir``` that we used in training process.
+* ```ID_list_dir``` : the path of a text file, including 'sample.ID', which should contain a header with 'ID'. If NULL, we use ```obj.bigSNP.test$fam$family.ID``` as sample ID.
+* ```result_dir``` : the directory to save the prediction result. If NULL, the output file will be saved in the default directory(the directory of currently R workspace).
 
-| ID                                |
-|-----------------------------------|
-| 0002fe444c0b23f3adec06e6b00bc20c |
-| 000de66839a885808b03f5f8f426211b |
-| 001f47b7adc95858bc8caba825f370d4 |
-| 001f676054f6155a47820c012630d891 |
-| ...                              |
-| 003abe243f194dc67d0173a920819a7e |
-| 008f2ab0ab0c7ca06f0e821b616ed170 |
-| 00c9a5fadab0b5ac73791decb7b6c9e0 |
-| 00f0e515f89ff6249b822ccf28375a80 |
 
-### Final result.
-The final result is stored in ```result_dir/```.
-| ID                                | pred                  |
-|-----------------------------------|-----------------------|
-| 0002fe444c0b23f3adec06e6b00bc20c | -7.90064036846161e-01 |
-| 000de66839a885808b03f5f8f426211b |  4.19244110584259e-01 |
-| 001f47b7adc95858bc8caba825f370d4 | -1.00259378552437e-01 |
-| 001f676054f6155a47820c012630d891 |  6.68807446956635e-01 |
-| ...                               | ...                   |
-| 003abe243f194dc67d0173a920819a7e | -3.22202265262604e-01 |
-| 008f2ab0ab0c7ca06f0e821b616ed170 | -4.02684330940247e-01 |
-| 00c9a5fadab0b5ac73791decb7b6c9e0 | -5.51103949546814e-01 |
-| 00f0e515f89ff6249b822ccf28375a80 |  3.70040535926819e-03 |
