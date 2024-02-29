@@ -22,10 +22,10 @@ train_with_pcnn(
     y_train,
     map,
     sumstats,
-    env_name = "pytorch",
-    material_out_dir = "material_out/",
+    env_name = 'yourenv',
+    material_out_dir = 'material_out/',
     max_evals = 20,
-    Ncores = 2,
+    Ncores = nb_cores(),
     seed = 32)
 
 
@@ -42,7 +42,8 @@ train_with_pcnn(
 
 result <- predict_function(G.test,
                            map.test,
-                           env_name = "pytorch",
+                           env_name = 'yourenv',
+                           material_save_dir = 'material_out/',
                            result_dir = 'result/',
                            Ncores = nb_cores())
 
