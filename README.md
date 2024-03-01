@@ -63,6 +63,10 @@ Rscript example.R
 
 ## Instruction for training and prediction. 
 
+### Source train and predict function.
+source('Train/train_with_pc.r')
+source('Predict/predict_with_pc.r')
+
 ### Load training dataset and summary statistics.
 ```R
 obj.bigSNP <- read_file(
