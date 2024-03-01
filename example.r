@@ -25,7 +25,7 @@ train_with_pcnn(
     env_name = 'yourenv',
     material_out_dir = 'material_out/',
     max_evals = 20,
-    Ncores = nb_cores(),
+    Ncores = 2,
     seed = 32)
 
 
@@ -44,8 +44,9 @@ result <- predict_function(G.test,
                            map.test,
                            env_name = 'yourenv',
                            material_save_dir = 'material_out/',
+                           ID_list_dir = 'data/ID_list.txt',
                            result_dir = 'result/',
-                           Ncores = nb_cores())
+                           Ncores = 2)
 
 
 
