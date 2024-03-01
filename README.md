@@ -7,11 +7,12 @@ Compared to traditional methods, PCNN shows that neural network could be flexibl
 Download a local copy of PCNNPRS:
 ```
 git clone https://github.com/zzfcharlie/PCNNPRS.git
+cd PCNNPRS
 ```
 ### Dependencies:
 Python: Pytorch-cpu, Scikit-learn, Numpy, Pandas. 
 
-R: bigsnpr, dplyr, data.table, Matrix, doParallel, recticulate, and all of their dependencies.
+R: bigsnpr, dplyr, data.table, Matrix, doParallel, reticulate, and all of their dependencies.
 
 ## An example to train PCNN model and make prediction on target data.
 
@@ -23,8 +24,9 @@ First, create and activate a conda environment and install the Python packages. 
 # The example is performed under Windows 10.
 conda create -n yourenv python=3.9
 conda activate yourenv
-conda install pytorch torchvision torchaudio cpuonly -c pytorch
-conda install scikit-learn pandas numpy
+# we found that 'Pytorch' installed from conda source would have conflict with R packages 'reticulate'. Thus, we use 'pip install' instead of 'conda install'.
+pip3 install torch torchvision torchaudio
+pip install scikit-learn pandas numpy
 ```
 Please record your conda environment name. We use ```yourenv``` in our example.
 
@@ -33,13 +35,15 @@ Then, install R packages as follows:
 install.packages('bigsnpr')
 install.packages('dplyr')
 install.packages('doParallel')
-install.packages('recticulate')
+install.packages('reticulate')
 install.packages('data.table')
 ```
 
 ### Run 'Rscript example.R'
 ```
+# Make sure you've added R and Rscript to the system PATH.
 Rscript example.R
+
 ```
 
 ### The prediction result will be stored in 'result/pred.txt'.
@@ -110,7 +114,7 @@ train_with_pcnn(
     env_name = "yourenv",
     material_out_dir = "material_out/",
     max_evals = 20,
-    Ncores = nb_cores(),
+    Ncores = 2,
     seed = 32)
 ```
 
@@ -156,7 +160,7 @@ predict_result <- predict_function(
                            material_save_dir = 'material_out/',
                            ID_list_dir = 'data/ID_list.txt',
                            result_dir = 'result/',
-                           Ncores = nb_cores())
+                           Ncores = 2)
 
 ```
 * ```material_save_dir``` : the same directory as ```material_out_dir``` that we used in training process.
