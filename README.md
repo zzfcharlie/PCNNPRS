@@ -13,17 +13,17 @@ Python: Pytorch-cpu, Scikit-learn, Numpy, Pandas.
 
 R: bigsnpr, dplyr, data.table, Matrix, doParallel, reticulate, and all of their dependencies.
 
-## An example to train PCNN model with example data:
+## An example of training PCNN model with example data:
 
-### STEP 1: Set up Python environment and install R packages.
-We recommend you use conda to manage dependencies in different environments. If Conda hasn't been installed on your system yet, please visit https://www.anaconda.com/download for detailed installation information. Our analyses are currently conducted on CPU, and we are considering using GPU devices to train PyTorch model in the future. Refer to https://pytorch.org/get-started/locally/ for instructions on installing PyTorch, with steps varying based on your operating system.
+### STEP 1: Set up the Python environment and install R packages.
+We recommend you use conda to manage dependencies in different environments. If Conda hasn't been installed on your system yet, please visit https://www.anaconda.com/download for detailed installation information. Our analyses are currently conducted on CPU, and we are considering using GPU devices to train the PyTorch model in the future. Refer to https://pytorch.org/get-started/locally/ for instructions on installing PyTorch, with steps varying based on your operating system.
 
 First, create and activate a conda environment and install the Python packages. 
 ```
 # The example is performed under Windows 10.
 conda create -n yourenv python=3.9
 conda activate yourenv
-# we found that 'Pytorch' installed from conda source would have conflict with R packages 'reticulate'. Thus, we use 'pip install' instead of 'conda install'.
+# We found that 'Pytorch' installed from the conda source would have a conflict with R packages 'reticulate'. Thus, we use 'pip install' instead of 'conda install'.
 pip3 install torch torchvision torchaudio
 pip install scikit-learn pandas numpy
 ```
@@ -75,7 +75,7 @@ y_train <- fread('data/y_train.txt', header=FALSE)
 | 22  | rs9616978   | 51220319 | G  | C  |
 
 where chr, pos, a0, and a1 represent chromosome, position, reference allele, and alternative allele respectively.
-* *sumstats* refer to summary statistcs.
+* *sumstats* refer to summary statistics.
 
 | chr | rsid        | pos       | a1 | a0 | beta              | p                |
 | --- | ----------- | --------- | -- | -- | ----------------- | ---------------- |
@@ -102,12 +102,12 @@ train_with_pcnn(
     seed = 32)
 ```
 * ```G``` refers to genotyped variants coded in '0/1/2'.
-* ```y_train``` refers to the continuous phenotype of training dataset.
+* ```y_train``` refers to the continuous phenotype of the training dataset.
 * ```map``` refers to variants information.
-* ```env_name``` refers to the name of conda environment we've created before.
-* ```material_out_dir``` is a directory used to store temporary files during training. If you don't specify this directory, temporary files will be generated under the default path(the directory of current R workspace). ```This directory contains the temporary files generated during the training process that will be used 
+* ```env_name``` refers to the name of the conda environment we've created before.
+* ```material_out_dir``` is a directory used to store temporary files during training. If you don't specify this directory, temporary files will be generated under the default path(the directory of the current R workspace). ``` This directory contains the temporary files generated during the training process that will be used 
 during the prediction process.```
-* ```max_evals``` is the total number of rounds in a random search for hyperparameters tuning.
+* ```max_evals``` is the number of rounds in a random search for hyperparameters tuning.
 * ```Ncores``` represents the number of CPU cores used for parallel processing.
 * ```seed``` refers to a random seed used to initialize the random number generator.
 
@@ -126,9 +126,9 @@ The 'deep_map.txt' is generated during training process(STEP 4) and stored in 'm
 | 22  | rs9616941    | 51136646 | T  | C  | -9.271383e-04   |
 
 
-## An example to make prediction based on the trained-PCNN model:
+## An example to make a prediction based on the trained-PCNN model:
 ### STEP 1: Source 'predict_with_pc.r' and load testing dataset.
-The example testing bfile(test.bim) is stored in '/data/'.
+The example testing bfiles(test.bim, test.bed, test.fam) are stored in '/data/'.
 ```R
 source('Predict/Predict_with_pc.r')
 obj.bigSNP.test <- read_file(
@@ -155,7 +155,7 @@ predict_result <- predict_function(
 ```
 * ```material_save_dir``` : the same directory as ```material_out_dir``` that we used in training process.
 * ```ID_list_dir``` : the path of a text file, including 'sample.ID', which should contain a header with 'ID'. If NULL, we use ```obj.bigSNP.test$fam$family.ID``` as sample ID.
-* ```result_dir``` : the directory to save the prediction result. If NULL, the output file will be saved in the default directory(the directory of currently R workspace).
+* ```result_dir``` : the directory to save the prediction result. If NULL, the output file will be saved in the default directory(the directory of the current R workspace).
 
 ### The prediction result will be stored in 'result/pred.txt'.
 | ID                                | pred                  |
