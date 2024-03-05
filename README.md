@@ -1,25 +1,24 @@
 # PCNNPRS
 PCNNPRS is a novel method to perform PRS calculations with a partially connected neural network, where the input of PCNN is a multi-PRS calculated on each chromosome with different clumping and thresholding (C+T) parameters.
-Compared to traditional methods, PCNN shows that neural network could be flexible enough to predict the nonlinear relationships between C+T scores and continuous phenotypes, emphasizing the practicality of our method for continuous trait predictions.
+Compared to traditional methods, PCNN shows that neural networks could be flexible enough to predict the nonlinear relationships between C+T scores and continuous phenotypes, emphasizing the practicality of our method for continuous trait predictions.
 
 ## Installation:
-### From source
+### From source:
 Download a local copy of PCNNPRS:
 ```
 git clone https://github.com/zzfcharlie/PCNNPRS.git
-cd PCNNPRS
 ```
 ### Dependencies:
 Python: Pytorch-cpu, Scikit-learn, Numpy, Pandas. 
 
 R: bigsnpr, dplyr, data.table, Matrix, doParallel, reticulate, and all of their dependencies.
 
-## An example to train PCNN model and make prediction on target data.
+## An example to train PCNN model with example data:
 
-### Set up Python environment and install R packages.
+### STEP 1: Set up Python environment and install R packages.
 We recommend you use conda to manage dependencies in different environments. If Conda hasn't been installed on your system yet, please visit https://www.anaconda.com/download for detailed installation information. Our analyses are currently conducted on CPU, and we are considering using GPU devices to train PyTorch model in the future. Refer to https://pytorch.org/get-started/locally/ for instructions on installing PyTorch, with steps varying based on your operating system.
 
-First, create and activate a conda environment and install the Python packages. (Please skip this step if you've already done this before.)
+First, create and activate a conda environment and install the Python packages. 
 ```
 # The example is performed under Windows 10.
 conda create -n yourenv python=3.9
@@ -39,48 +38,27 @@ install.packages('reticulate')
 install.packages('data.table')
 ```
 
-### Run 'Rscript example.R'
-```
-# Make sure you've added R and Rscript to the system PATH.
-Rscript example.R
-
-```
-
-### The prediction result will be stored in 'result/pred.txt'.
-| ID                                | pred                  |
-|-----------------------------------|-----------------------|
-| 0002fe444c0b23f3adec06e6b00bc20c | -7.90064036846161e-01 |
-| 000de66839a885808b03f5f8f426211b |  4.19244110584259e-01 |
-| 001f47b7adc95858bc8caba825f370d4 | -1.00259378552437e-01 |
-| 001f676054f6155a47820c012630d891 |  6.68807446956635e-01 |
-| ...                               | ...                   |
-| 003abe243f194dc67d0173a920819a7e | -3.22202265262604e-01 |
-| 008f2ab0ab0c7ca06f0e821b616ed170 | -4.02684330940247e-01 |
-| 00c9a5fadab0b5ac73791decb7b6c9e0 | -5.51103949546814e-01 |
-| 00f0e515f89ff6249b822ccf28375a80 |  3.70040535926819e-03 |
-
-
-
-## Instruction for training and prediction. 
-
-### Source train and predict function.
+### STEP 2: Set R workspace into 'PCNNPRS' and source 'train_with_pc.r'.
+```R
+setwd('PCNNPRS')
 source('Train/train_with_pc.r')
 source('Predict/predict_with_pc.r')
-
-### Load training dataset and summary statistics.
+```
+### STEP 3: Load training dataset and summary statistics.
+We simulated continuous outcomes on 22 chromosomes(842619 SNPs) for 500 subjects. Then, we divided the whole dataset into two parts: 400 for training and 100 for testing. These example data were stored in directory '/data/', where 'train.bed', 'train.bim', 'train.fam' were the training bfiles, 'test.bed', 'test.bim', 'test.fam' were the testing bfiles, 'sumstats.txt' was the summary statistics, 'y_train.txt' and 'y_test.txt' were the corresponding simulated training and testing phenotypes, 'ID_list.txt' was the individual ID information of testing samples.
 ```R
 obj.bigSNP <- read_file(
   input_file_dir = 'data/train',
-  plink_dir = 'plink',
-  bfile_out_dir = 'path/to/store_bfile'
+  #plink_dir = 'plink',
+  #bfile_out_dir = 'material_out/'
 )
 G <- obj.bigSNP$genotypes
 map <- obj.bigSNP$map[-3]
-names(map) <- c('chr', 'rsid', 'pos', 'a1','a0')
+names(map) <- c('chr', 'rsid', 'pos', 'a1', 'a0')
 #sumstats should contain 'beta' and 'pval' columns.
-sumstats <- fread('path/to/sumstats.txt',header = TRUE)
+sumstats <- fread('data/sumstats.txt', header = TRUE)
 names(sumstats) <- c('chr', 'rsid', 'pos', 'a1', 'a0', 'beta', 'p')
-y_train <- fread('path/to/y_train.txt', header=FALSE)
+y_train <- fread('data/y_train.txt', header=FALSE)
 ```
 * ```read_file()``` accepts two types of input: VCF file(.vcf) and PLINK files (.bed, .bim, .fam) without extension.
 * ```bfile_out_dir``` refers to the path where to store PLINK files and is only enabled when the input is in VCF format. Moreover, if you don't specify ```bfile_out_dir```, PLINK files will be generated under the same directory as your input file. 
@@ -95,6 +73,8 @@ y_train <- fread('path/to/y_train.txt', header=FALSE)
 | 22  | rs5771014   | 51216731 | C  | T  |
 | 22  | rs28729663  | 51219006 | A  | G  |
 | 22  | rs9616978   | 51220319 | G  | C  |
+
+where chr, pos, a0, and a1 represent chromosome, position, reference allele, and alternative allele respectively.
 * *sumstats* refer to summary statistcs.
 
 | chr | rsid        | pos       | a1 | a0 | beta              | p                |
@@ -108,7 +88,7 @@ y_train <- fread('path/to/y_train.txt', header=FALSE)
 
 * Our model doesn't handle missing values. You can use ```snp_fastImpute()``` or ```snp_fastImputeSimple()``` in ```bigsnpr``` to impute missing values of genotyped variants before training.
 
-### Compute multi-PRS and train with PCNN.
+### STEP 4: Compute multi-PRS and train with PCNN.
 ```R
 train_with_pcnn(
     G,
@@ -121,16 +101,20 @@ train_with_pcnn(
     Ncores = 2,
     seed = 32)
 ```
-
+* ```G``` refers to genotyped variants coded in '0/1/2'.
+* ```y_train``` refers to the continuous phenotype of training dataset.
+* ```map``` refers to variants information.
 * ```env_name``` refers to the name of conda environment we've created before.
-* ```material_out_dir``` is a directory used to store temporary files during training. If you don't specify this directory, temporary files will be generated under the default path(the directory of currently R workspace).
+* ```material_out_dir``` is a directory used to store temporary files during training. If you don't specify this directory, temporary files will be generated under the default path(the directory of current R workspace). ```This directory contains the temporary files generated during the training process that will be used 
+during the prediction process.```
 * ```max_evals``` is the total number of rounds in a random search for hyperparameters tuning.
-* ```Ncores``` represents the number of CPU cores used for parallel processing during training.
+* ```Ncores``` represents the number of CPU cores used for parallel processing.
 * ```seed``` refers to a random seed used to initialize the random number generator.
 
 
 
-### Calculate reverse weight for variants and obtain ```deep_map.txt```.
+### STEP 5: Calculate reverse weight for variants and obtain ```deep_map.txt```.
+The 'deep_map.txt' is generated during training process(STEP 4) and stored in 'material_out_dir', which looks like
 
 | chr | rsid        | pos   | a1 | a0 | beta            |
 | --- | ----------- | ----- | -- | -- | --------------- |
@@ -141,21 +125,23 @@ train_with_pcnn(
 | 22  | rs9616818    | 51135545 | T  | C  | -6.468541e-05   |
 | 22  | rs9616941    | 51136646 | T  | C  | -9.271383e-04   |
 
-### Load test dataset.
 
+## An example to make prediction based on the trained-PCNN model:
+### STEP 1: Source 'predict_with_pc.r' and load testing dataset.
+The example testing bfile(test.bim) is stored in '/data/'.
 ```R
 source('Predict/Predict_with_pc.r')
 obj.bigSNP.test <- read_file(
   input_file_dir = 'data/test',
-  plink_dir = 'plink',
-  bfile_out_dir = 'path/to/store_test_bfile'
+  #plink_dir = 'plink',
+  #bfile_out_dir = 'path/to/store_test_bfile'
 )
 G.test <- obj.bigSNP.test$genotypes
 map.test <- obj.bigSNP.test$map[-3]
 names(map.test) <- c('chr', 'rsid', 'pos', 'a1', 'a0')
 ```
 
-### Make prediction.
+### STEP 2: Make prediction.
 ```R
 predict_result <- predict_function(
                            G.test,
@@ -170,5 +156,20 @@ predict_result <- predict_function(
 * ```material_save_dir``` : the same directory as ```material_out_dir``` that we used in training process.
 * ```ID_list_dir``` : the path of a text file, including 'sample.ID', which should contain a header with 'ID'. If NULL, we use ```obj.bigSNP.test$fam$family.ID``` as sample ID.
 * ```result_dir``` : the directory to save the prediction result. If NULL, the output file will be saved in the default directory(the directory of currently R workspace).
+
+### The prediction result will be stored in 'result/pred.txt'.
+| ID                                | pred                  |
+|-----------------------------------|-----------------------|
+| 0002fe444c0b23f3adec06e6b00bc20c | -0.790                |
+| 000de66839a885808b03f5f8f426211b |  0.419                |
+| 001f47b7adc95858bc8caba825f370d4 | -0.100                |
+| 001f676054f6155a47820c012630d891 |  0.669                |
+| ...                               | ...                   |
+| 003abe243f194dc67d0173a920819a7e | -0.322                |
+| 008f2ab0ab0c7ca06f0e821b616ed170 | -0.403                |
+| 00c9a5fadab0b5ac73791decb7b6c9e0 | -0.551                |
+| 00f0e515f89ff6249b822ccf28375a80 |  0.004                |
+
+
 
 
